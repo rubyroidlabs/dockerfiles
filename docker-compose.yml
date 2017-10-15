@@ -1,62 +1,40 @@
-version: '2'
+version: '3.3'
 
 services:
   postgres:
-    image: postgres:9.6
-    restart: always
-    ports:
-      - "5432"
-    volumes:
-      - /var/www/PROJECT/postgresql/data:/var/lib/postgresql/data
+    image: postgres:10.0-alpine
+    expose:
+      - 5432
 
   redis:
-    image: redis:3.2
-    restart: always
-    ports:
-      - "6379"
-
-  nginx:
-    build:
-      context: ./docker/nginx/
-      dockerfile: Dockerfile
-    image: PROJECT-nginx
-    restart: always
-    volumes:
-      - /var/www/PROJECT/frontend:/frontend
-      - /var/www/PROJECT/backend/tmp/sockets:/sockets
-      - /var/www/PROJECT/backend/log:/log
-    ports:
-      - "0.0.0.0:80:80"
-      - "0.0.0.0:443:443"
+    image: redis:4.0-alpine
+    expose:
+      - 6379
 
   frontend:
     build:
       context: ./docker/frontend/
       dockerfile: Dockerfile
-    image: PROJECT-frontend
-    volumes:
-      - /var/www/PROJECT/frontend:/dist
-    command: sh -c "ng build --target=production --environment="$WEBPACK_BUILD_ENV" && rm -rf /dist/* && cp -r /frontend/dist/* /dist/"
+    image: PROJECT/frontend
+      args:
+        REPOSITORY: git@github.com:user/repository.git
+    command: sh -c './docker-entrypoint.sh'
 
   backend:
     build:
-      context: ./docker/app/
+      context: ./docker/backend/
       dockerfile: Dockerfile
-    image: PROJECT-backend
-    restart: always
-    volumes:
-      - /var/www/PROJECT/backend/tmp/sockets:/backend/tmp/sockets
-      - /var/www/PROJECT/backend/log:/backend/log
-    command: sh -c "sleep 5 && bundle exec rake db:migrate && bundle exec puma --config config/puma.rb"
-    links:
+      args:
+        REPOSITORY: git@github.com:user/repository.git
+    image: PROJECT/backend
+    depends_on:
       - postgres
       - redis
-      - nginx
+    command: sh -c './docker-entrypoint.sh'
 
   sidekiq:
-    image: PROJECT-backend
-    restart: always
-    command: sh -c "sleep 5 && bundle exec sidekiq"
-    links:
+    image: PROJECT/backend
+    depends_on:
       - postgres
       - redis
+    command: sh -c './docker.db-check.sh && bundle exec sidekiq'

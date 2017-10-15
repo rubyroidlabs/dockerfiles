@@ -1,16 +1,48 @@
 # README
 
-#### Ruby version
+## Ruby version
 -   2.3.3
 
 
-#### System dependencies
+## System dependencies
 -   docker
 
 
-#### Instructions
+## Dev instructions
 
-##### install docker at remote machine:
+### start in development:
+```
+docker-compose up
+```
+
+if there is no images and command fails:
+
+```
+docker-compose build
+```
+
+and then `docker-compose up`
+
+By default docker reads `docker-compose.yml` and `docker-compose.override.yml`
+
+`docker-compose.override.yml` contains overrides for development.
+`docker-compose.staging.yml` - for staging.
+`docker-compose.production.yml` - for production.
+
+#### To use rails console:
+```
+docker-compose exec backend rails c
+```
+
+#### To use pry:
+```
+docker-compose stop backend && docker-compose run --service-ports backend
+```
+
+
+## Deploy instructions
+
+### install docker at remote machine:
 ```
 docker-machine create --driver generic \
    --generic-ip-address REMOTE_HOST_IP \
@@ -20,94 +52,97 @@ docker-machine create --driver generic \
    MACHINE_NAME
 ```
 
-##### attach your docker client to remote machine:
+### attach your docker client to remote machine:
 ```
 eval $(docker-machine env MACHINE_NAME)
 ```
 
-###### build base-images (only first time):
+### build all containers:
 
-```
-docker build -t rails-base ./docker/rails-base/
-docker build -t node-base ./docker/angular2-base/
-```
-
-##### build all containers:
-
-*   prod:
+*   production:
 
     ```
     docker-compose \
       --project-name PROJECT \
       -f docker-compose.yml \
-      -f docker-compose.prod.yml \
+      -f docker-compose.production.yml \
       build --no-cache
     ```
 
-*   stage:
+*   staging:
 
     ```
     docker-compose \
       --project-name PROJECT \
       -f docker-compose.yml \
-      -f docker-compose.stage.yml \
+      -f docker-compose.staging.yml \
       build --no-cache
     ```
 
-##### start all containers:
+### start all containers:
 
-*   prod:
+*   production:
 
     ```
     docker-compose \
       --project-name PROJECT \
       -f docker-compose.yml \
-      -f docker-compose.prod.yml \
+      -f docker-compose.production.yml \
       up -d
     ```
 
-*   stage:
+*   staging:
 
     ```
     docker-compose \
       --project-name PROJECT \
       -f docker-compose.yml \
-      -f docker-compose.stage.yml \
+      -f docker-compose.staging.yml \
       up -d
     ```
 
 
-###### * To build only one container, for example `frontend` in `prod`, run:
+#### * To build only one container, for example `frontend` in `production`, run:
 
 ```
 docker-compose \
   --project-name PROJECT \
   -f docker-compose.yml \
-  -f docker-compose.prod.yml \
+  -f docker-compose.production.yml \
   build --no-cache \
   frontend
 ```
 
 
-###### ** To start it attached to console, run:
+#### ** To start it attached to console, run:
 
 ```
 docker-compose \
   --project-name PROJECT \
   -f docker-compose.yml \
-  -f docker-compose.prod.yml \
+  -f docker-compose.production.yml \
   up \
   frontend
 ```
 
 
-###### *** To attach to the existing container, run:
+#### *** To attach to the existing container, run:
 
 ```
 docker-compose \
   --project-name PROJECT \
   -f docker-compose.yml \
-  -f docker-compose.prod.yml \
+  -f docker-compose.production.yml \
   exec \
   frontend /bin/bash
+```
+
+#### *** To view logs
+
+```
+docker-compose \
+  --project-name PROJECT \
+  -f docker-compose.yml \
+  -f docker-compose.production.yml \
+  logs -f
 ```

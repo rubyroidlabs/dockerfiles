@@ -1,23 +1,20 @@
-FROM angular2-base:latest
-MAINTAINER siarhei.ivanouski@rubyroidlabs.com
+FROM rubyroidlabs/angular-cli:1.4.7-1-alpine
 
-ARG branch
-ARG repository
+ARG BRANCH=master
+ARG ENV=production
+ARG REPOSITORY
 
-RUN mkdir -p ~/.ssh \
-    && echo "
-      !!!! HERE SHOULD BE PRIVATE RSA KEY !!!!
-    " > ~/.ssh/id_rsa \
-    && chmod 600 ~/.ssh/id_rsa \
-    && echo "
-      !!!! HERE SHOULD BE KNOWN_HOSTS ENTRIES FOR GIT SERVER (github, gitlab, bitbucket...) !!!!
-    " > ~/.ssh/known_hosts
+# Copy deploy keys
+RUN mkdir -p ~/.ssh
 
-WORKDIR /
+COPY id_rsa /root/.ssh/id_rsa
+COPY known_hosts /root/.ssh/known_hosts
 
-RUN git clone -b $branch --single-branch $repository frontend
+RUN chmod 600 ~/.ssh/id_rsa
+
+# Clone project
+RUN git clone -b $BRANCH --single-branch $REPOSITORY /frontend
 
 WORKDIR /frontend
 
-RUN npm install
-RUN typings install
+RUN yarn install

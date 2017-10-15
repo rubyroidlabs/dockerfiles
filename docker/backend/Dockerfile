@@ -1,24 +1,24 @@
-FROM rails-base:latest
-MAINTAINER siarhei.ivanouski@rubyroidlabs.com
+FROM rubyroidlabs/rails:5.1.4-3
 
-ARG branch
-ARG repository
+ARG BRANCH=master
+ARG RAILS_ENV=production
+ARG REPOSITORY
 
-RUN mkdir -p ~/.ssh \
-    && echo "
-      !!!! HERE SHOULD BE PRIVATE RSA KEY !!!!
-    " > ~/.ssh/id_rsa \
-    && chmod 600 ~/.ssh/id_rsa \
-    && echo "
-      !!!! HERE SHOULD BE KNOWN_HOSTS ENTRIES FOR GIT SERVER (github, gitlab, bitbucket...) !!!!
-    " > ~/.ssh/known_hosts
+# Set timezone
+RUN ln -sf /usr/share/zoneinfo/US/Pacific /etc/localtime
 
-WORKDIR /
+# Copy deploy keys
+RUN mkdir -p ~/.ssh
 
-RUN git clone -b $branch --single-branch $repository backend
+COPY id_rsa /root/.ssh/id_rsa
+COPY known_hosts /root/.ssh/known_hosts
+
+RUN chmod 600 ~/.ssh/id_rsa
+
+# Clone project
+RUN git clone -b $BRANCH --single-branch $REPOSITORY /backend
 
 WORKDIR /backend
 
-RUN /bin/bash -c 'for i in $(find config -name *.sample); do mv "$i" "${i/.sample/}"; done'
-
 RUN bundle install
+RUN bundle exec rake assets:precompile

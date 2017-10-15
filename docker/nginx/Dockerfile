@@ -1,6 +1,8 @@
-FROM nginx:1.11
-MAINTAINER siarhei.ivanouski@rubyroidlabs.com
+FROM nginx:stable-alpine
 
-ARG env
+ARG ENV=production
+ARG WORKERS=auto
 
-COPY $env.nginx.conf /etc/nginx/conf.d/app.conf
+COPY $ENV.nginx.conf /etc/nginx/conf.d/default.conf
+
+RUN sed -i -- "s/worker_processes  1;/worker_processes  ${WORKERS};/g" /etc/nginx/nginx.conf
