@@ -18,7 +18,7 @@ deploy() {
   db_check
 
   bundle exec rake db:migrate
-  bundle exec puma --config config/puma.rb
+  exec bundle exec puma --config config/puma.rb # Do not forget to execute last comand with exec to let puma have PID 1
 }
 
 start_dev_env() {
@@ -28,7 +28,7 @@ start_dev_env() {
 
   bundle install
   bundle exec rake db:migrate
-  bundle exec rails s -b 0.0.0.0 -p 3000
+  exec bundle exec rails s -b 0.0.0.0 -p 3000 # Do not forget to execute last comand with exec to let puma have PID 1
 }
 
 # MAIN

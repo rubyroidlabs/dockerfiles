@@ -18,7 +18,8 @@ services:
     image: PROJECT/frontend
       args:
         REPOSITORY: git@github.com:user/repository.git
-    command: sh -c './docker-entrypoint.sh'
+    entrypoint: ./docker-entrypoint.sh
+    stop_signal: SIGKILL # The only signal working for node
 
   backend:
     build:
@@ -30,11 +31,12 @@ services:
     depends_on:
       - postgres
       - redis
-    command: sh -c './docker-entrypoint.sh'
+    entrypoint: ./docker-entrypoint.sh
+    stop_signal: SIGINT # Puma's waiting it to quit with 0
 
   sidekiq:
     image: PROJECT/backend
     depends_on:
       - postgres
       - redis
-    command: sh -c './docker.db-check.sh && bundle exec sidekiq'
+    command: sh -c './docker.db-check.sh && exec bundle exec sidekiq' # Do not forget to execute last comand with exec to let sidekiq have PID 1

@@ -1,14 +1,9 @@
 # README
 
-## Ruby version
--   2.3.3
-
-
-## System dependencies
--   docker
-
-
 ## Dev instructions
+
+Do not forget to execute the main command in container with `exec`!!!
+Double check that puma, sidekiq or something else is running in container with PID 1!!!
 
 ### start in development:
 ```

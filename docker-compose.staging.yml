@@ -79,4 +79,5 @@ services:
       - redis
     environment:
       <<: *backend_env
-    command: sh -c './docker.db-check.sh && whenever --update-crontab && cron -f'
+    command: sh -c './docker.db-check.sh && whenever --update-crontab && exec cron -f'
+    stop_signal: SIGINT
