@@ -15,9 +15,9 @@ services:
     build:
       context: ./docker/frontend/
       dockerfile: Dockerfile
-    image: PROJECT/frontend
       args:
-        REPOSITORY: git@github.com:user/repository.git
+        REPOSITORY: 'git@github.com:user/repository.git'
+    image: PROJECT/frontend
     entrypoint: ./docker-entrypoint.sh
     stop_signal: SIGKILL # The only signal working for node
 
