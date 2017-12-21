@@ -1,8 +1,8 @@
-version: '3.3'
+version: '3'
 
 services:
   postgres:
-    image: postgres:10.0-alpine
+    image: postgres:10-alpine
     expose:
       - 5432
 
@@ -15,28 +15,22 @@ services:
     build:
       context: ./docker/frontend/
       dockerfile: Dockerfile
-      args:
-        REPOSITORY: 'git@github.com:user/repository.git'
     image: PROJECT/frontend
-    entrypoint: ./docker-entrypoint.sh
-    stop_signal: SIGKILL # The only signal working for node
+    command: ./docker-entrypoint.sh
+    stop_signal: SIGKILL
 
   backend:
     build:
       context: ./docker/backend/
       dockerfile: Dockerfile
-      args:
-        REPOSITORY: git@github.com:user/repository.git
     image: PROJECT/backend
-    depends_on:
-      - postgres
-      - redis
-    entrypoint: ./docker-entrypoint.sh
-    stop_signal: SIGINT # Puma's waiting it to quit with 0
+    command: ./docker-entrypoint.sh
+    stop_signal: SIGINT
 
   sidekiq:
     image: PROJECT/backend
-    depends_on:
-      - postgres
-      - redis
-    command: sh -c './docker.db-check.sh && exec bundle exec sidekiq' # Do not forget to execute last comand with exec to let sidekiq have PID 1
+    command: ./docker-entrypoint.sh
+
+  helper:
+    image: PROJECT/backend
+    command: ./docker-entrypoint.sh

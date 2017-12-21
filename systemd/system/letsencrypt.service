@@ -1,0 +1,6 @@
+[Unit]
+Description=Renew certs for dev
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'letsencrypt renew && docker kill -s 1 PROJECT_nginx_1'

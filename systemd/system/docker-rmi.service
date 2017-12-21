@@ -1,0 +1,6 @@
+[Unit]
+Description=Remove unused docker images
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c '/usr/bin/docker images --quiet --filter=dangling=true --no-trunc | /usr/bin/xargs --no-run-if-empty /usr/bin/docker rmi'

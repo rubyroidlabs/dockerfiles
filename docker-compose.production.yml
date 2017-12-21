@@ -58,7 +58,7 @@ services:
       <<: *postgres_env
       REDIS_URL: redis://redis:6379/1
       POSTGRES_HOST: postgres
-      RAILS_ENV: staging
+      RAILS_ENV: production
     restart: always
     expose:
       - 3000
